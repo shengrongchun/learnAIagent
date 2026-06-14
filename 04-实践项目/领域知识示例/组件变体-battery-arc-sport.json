@@ -1,0 +1,68 @@
+{
+  "id": "battery-arc-sport",
+  "version": "1.0",
+  "componentId": "battery",
+  "nameZh": "运动风圆弧电量",
+  "status": "draft",
+  "compatibleStyles": [
+    "sport",
+    "active",
+    "high-contrast"
+  ],
+  "representations": {
+    "active": {
+      "primitives": [
+        "arc",
+        "text"
+      ],
+      "parameters": {
+        "arcDegrees": {
+          "type": "integer",
+          "min": 60,
+          "max": 140
+        },
+        "lineWeight": {
+          "type": "token",
+          "allowed": [
+            "regular",
+            "bold"
+          ]
+        },
+        "textPosition": {
+          "type": "enum",
+          "allowed": [
+            "center",
+            "inside-start"
+          ]
+        }
+      }
+    },
+    "alwaysOn": {
+      "primitives": [
+        "text"
+      ],
+      "reason": "Always-On 默认降级为纯数字以减少高亮面积"
+    }
+  },
+  "stateBehavior": {
+    "normal": {
+      "semanticColor": "accent"
+    },
+    "low": {
+      "semanticColor": "warning"
+    },
+    "critical": {
+      "semanticColor": "danger"
+    },
+    "unavailable": {
+      "semanticColor": "muted",
+      "text": "--"
+    }
+  },
+  "quality": {
+    "webPreview": "required",
+    "monkeyCTemplate": "required",
+    "simulatorTest": "required",
+    "humanApproval": "required"
+  }
+}

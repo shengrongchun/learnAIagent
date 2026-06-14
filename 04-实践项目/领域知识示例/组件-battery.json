@@ -1,0 +1,74 @@
+{
+  "id": "battery",
+  "version": "1.0",
+  "nameZh": "电量",
+  "category": "device-status",
+  "userValue": "让用户快速判断是否需要充电",
+  "defaultPriority": 60,
+  "data": {
+    "source": "system-stats",
+    "valueType": "percentage",
+    "updateFrequency": "minute",
+    "fallbackText": "--"
+  },
+  "certifiedVariantIds": [
+    "battery-text-compact"
+  ],
+  "experimentalVariantIds": [
+    "battery-segment-gauge-tech",
+    "battery-arc-sport",
+    "battery-capsule-cartoon"
+  ],
+  "visualCost": {
+    "number": "small",
+    "icon-number": "small",
+    "progress-arc": "large"
+  },
+  "states": {
+    "normal": {
+      "condition": "value > 20",
+      "semanticColor": "secondary"
+    },
+    "low": {
+      "condition": "value > 10 && value <= 20",
+      "semanticColor": "warning",
+      "priorityBoost": 15
+    },
+    "critical": {
+      "condition": "value <= 10",
+      "semanticColor": "danger",
+      "priorityBoost": 30
+    },
+    "unavailable": {
+      "condition": "value is null",
+      "representation": "fallbackText",
+      "semanticColor": "muted"
+    }
+  },
+  "displayModes": {
+    "active": {
+      "allowedRepresentations": [
+        "number",
+        "icon-number",
+        "progress-arc"
+      ]
+    },
+    "alwaysOn": {
+      "allowedRepresentations": [
+        "number",
+        "icon-number"
+      ],
+      "semanticColorOverride": "always-on-safe"
+    }
+  },
+  "selectionHints": {
+    "recommendedFor": [
+      "daily",
+      "outdoor",
+      "travel"
+    ],
+    "avoidWhen": [
+      "user explicitly requests time-only"
+    ]
+  }
+}

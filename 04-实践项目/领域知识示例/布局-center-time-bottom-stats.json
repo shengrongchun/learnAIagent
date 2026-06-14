@@ -1,0 +1,63 @@
+{
+  "id": "center-time-bottom-stats",
+  "version": "1.0",
+  "nameZh": "中心时间与底部状态",
+  "supportedShapes": [
+    "round"
+  ],
+  "supportedInformationDensity": [
+    "low",
+    "medium"
+  ],
+  "styleTags": [
+    "minimal",
+    "sport",
+    "clean"
+  ],
+  "slots": [
+    {
+      "id": "primary",
+      "role": "primary",
+      "recommendedComponents": [
+        "time"
+      ],
+      "relativePosition": {
+        "x": 0.5,
+        "y": 0.43
+      },
+      "maxComponents": 1
+    },
+    {
+      "id": "bottomLeft",
+      "role": "secondary",
+      "relativePosition": {
+        "x": 0.35,
+        "y": 0.72
+      },
+      "maxComponents": 1
+    },
+    {
+      "id": "bottomRight",
+      "role": "secondary",
+      "relativePosition": {
+        "x": 0.65,
+        "y": 0.72
+      },
+      "maxComponents": 1
+    }
+  ],
+  "alwaysOnStrategy": {
+    "keepSlots": [
+      "primary"
+    ],
+    "optionalSlots": [
+      "bottomLeft",
+      "bottomRight"
+    ],
+    "simplifyStyle": true
+  },
+  "avoidWhen": [
+    "more than three visible components are required",
+    "user requests high information density"
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "id": "dark-sport",
+  "version": "1.0",
+  "nameZh": "深色运动",
+  "styleTags": [
+    "dark",
+    "sport",
+    "high-contrast"
+  ],
+  "designTokens": {
+    "lineWeight": "bold",
+    "cornerRadius": "small",
+    "iconLanguage": "bold-outline",
+    "numberStyle": "condensed-sport",
+    "spacingDensity": "low",
+    "decorationLanguage": "arcs-and-speed-lines"
+  },
+  "active": {
+    "background": "#000000",
+    "primary": "#FFFFFF",
+    "secondary": "#B8B8B8",
+    "accent": "#35D07F",
+    "warning": "#FFB020",
+    "danger": "#FF4D4F",
+    "muted": "#777777"
+  },
+  "alwaysOn": {
+    "background": "#000000",
+    "primary": "#B0B0B0",
+    "secondary": "#707070",
+    "accent": "#789C85",
+    "warning": "#9C825A",
+    "danger": "#9C6666",
+    "muted": "#555555"
+  },
+  "selectionHints": {
+    "recommendedFor": [
+      "running",
+      "fitness",
+      "minimal"
+    ],
+    "avoidWhen": [
+      "user requests bright or playful style"
+    ]
+  },
+  "preferredVariantTags": [
+    "arc",
+    "bold-outline",
+    "high-contrast",
+    "compact"
+  ],
+  "avoidVariantTags": [
+    "dense-grid",
+    "soft-character",
+    "ornamental"
+  ]
+}

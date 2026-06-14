@@ -1,0 +1,26 @@
+{
+  "id": "component-state-style-completeness",
+  "version": "1.0",
+  "nameZh": "组件状态样式完整性",
+  "type": "design-rule",
+  "severity": "error",
+  "description": "进入代码生成前，每个组件必须覆盖产品要求的关键数据状态和设备显示状态。",
+  "requiredDataStates": [
+    "normal",
+    "unavailable"
+  ],
+  "conditionalDataStates": {
+    "supportsFreshness": [
+      "stale"
+    ],
+    "supportsThresholds": [
+      "warning",
+      "critical"
+    ]
+  },
+  "requiredDisplayModes": [
+    "active",
+    "alwaysOn"
+  ],
+  "failureAction": "reject-candidate"
+}

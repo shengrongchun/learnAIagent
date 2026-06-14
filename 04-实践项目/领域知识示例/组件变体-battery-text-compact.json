@@ -1,0 +1,62 @@
+{
+  "id": "battery-text-compact",
+  "version": "1.0",
+  "componentId": "battery",
+  "nameZh": "紧凑数字电量",
+  "status": "certified",
+  "compatibleStyles": [
+    "minimal",
+    "sport",
+    "tech",
+    "cartoon"
+  ],
+  "representations": {
+    "active": {
+      "primitives": [
+        "text"
+      ],
+      "parameters": {
+        "showPercentSymbol": {
+          "type": "boolean",
+          "default": true
+        },
+        "fontRole": {
+          "type": "token",
+          "allowed": [
+            "supporting",
+            "secondary"
+          ]
+        }
+      }
+    },
+    "alwaysOn": {
+      "primitives": [
+        "text"
+      ],
+      "parameterOverrides": {
+        "fontRole": "supporting"
+      }
+    }
+  },
+  "stateBehavior": {
+    "normal": {
+      "semanticColor": "secondary"
+    },
+    "low": {
+      "semanticColor": "warning"
+    },
+    "critical": {
+      "semanticColor": "danger"
+    },
+    "unavailable": {
+      "semanticColor": "muted",
+      "text": "--"
+    }
+  },
+  "quality": {
+    "webPreview": "passed",
+    "monkeyCTemplate": "passed",
+    "simulatorTest": "passed",
+    "humanApproval": "passed"
+  }
+}

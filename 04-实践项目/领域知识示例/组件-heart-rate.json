@@ -1,0 +1,59 @@
+{
+  "id": "heartRate",
+  "version": "1.0",
+  "nameZh": "心率",
+  "category": "health",
+  "userValue": "展示当前健康或运动状态",
+  "defaultPriority": 55,
+  "data": {
+    "source": "activity-monitor",
+    "valueType": "beats-per-minute",
+    "updateFrequency": "device-dependent",
+    "fallbackText": "--"
+  },
+  "supportedRepresentations": [
+    "number",
+    "icon-number"
+  ],
+  "states": {
+    "normal": {
+      "condition": "value is available and fresh",
+      "semanticColor": "accent"
+    },
+    "stale": {
+      "condition": "value is available but stale",
+      "semanticColor": "muted",
+      "showStaleIndicator": true
+    },
+    "unavailable": {
+      "condition": "value is null",
+      "representation": "fallbackText",
+      "semanticColor": "muted"
+    }
+  },
+  "displayModes": {
+    "active": {
+      "allowedRepresentations": [
+        "number",
+        "icon-number"
+      ]
+    },
+    "alwaysOn": {
+      "allowedRepresentations": [
+        "number"
+      ],
+      "semanticColorOverride": "always-on-safe"
+    }
+  },
+  "selectionHints": {
+    "recommendedFor": [
+      "running",
+      "fitness",
+      "health-focused"
+    ],
+    "avoidWhen": [
+      "user requests time-only",
+      "data is unsupported for selected target"
+    ]
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "id": "battery-capsule-cartoon",
+  "version": "1.0",
+  "componentId": "battery",
+  "nameZh": "卡通风胶囊电量",
+  "status": "draft",
+  "compatibleStyles": [
+    "cartoon",
+    "playful",
+    "rounded"
+  ],
+  "representations": {
+    "active": {
+      "primitives": [
+        "rounded-rect",
+        "fill",
+        "text"
+      ],
+      "parameters": {
+        "cornerRadius": {
+          "type": "token",
+          "allowed": [
+            "round",
+            "extra-round"
+          ]
+        },
+        "showFace": {
+          "type": "boolean",
+          "default": false,
+          "constraint": "only when certified face assets are available"
+        }
+      }
+    },
+    "alwaysOn": {
+      "primitives": [
+        "outline",
+        "text"
+      ],
+      "parameterOverrides": {
+        "showFace": false
+      }
+    }
+  },
+  "stateBehavior": {
+    "normal": {
+      "semanticColor": "accent"
+    },
+    "low": {
+      "semanticColor": "warning",
+      "expression": "concerned"
+    },
+    "critical": {
+      "semanticColor": "danger",
+      "expression": "tired"
+    },
+    "unavailable": {
+      "semanticColor": "muted",
+      "text": "--"
+    }
+  },
+  "quality": {
+    "webPreview": "required",
+    "monkeyCTemplate": "required",
+    "simulatorTest": "required",
+    "humanApproval": "required"
+  }
+}

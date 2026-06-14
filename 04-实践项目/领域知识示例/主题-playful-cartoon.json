@@ -1,0 +1,47 @@
+{
+  "id": "playful-cartoon",
+  "version": "1.0",
+  "nameZh": "活泼卡通",
+  "styleTags": [
+    "cartoon",
+    "playful",
+    "rounded"
+  ],
+  "designTokens": {
+    "lineWeight": "regular",
+    "cornerRadius": "extra-round",
+    "iconLanguage": "soft-filled",
+    "numberStyle": "rounded",
+    "spacingDensity": "low",
+    "decorationLanguage": "simple-character-and-bubble"
+  },
+  "active": {
+    "background": "#171326",
+    "primary": "#FFF5E6",
+    "secondary": "#C9B8E8",
+    "accent": "#79E6C1",
+    "warning": "#FFD166",
+    "danger": "#FF7A8A",
+    "muted": "#847A98"
+  },
+  "alwaysOn": {
+    "background": "#000000",
+    "primary": "#A89FAB",
+    "secondary": "#746E7C",
+    "accent": "#709184",
+    "warning": "#928367",
+    "danger": "#956E73",
+    "muted": "#56515C"
+  },
+  "preferredVariantTags": [
+    "rounded",
+    "capsule",
+    "friendly",
+    "character-ready"
+  ],
+  "avoidVariantTags": [
+    "sharp",
+    "dense-grid",
+    "technical-small-text"
+  ]
+}

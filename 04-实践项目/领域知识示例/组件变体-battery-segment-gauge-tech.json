@@ -1,0 +1,73 @@
+{
+  "id": "battery-segment-gauge-tech",
+  "version": "1.0",
+  "componentId": "battery",
+  "nameZh": "科技风分段电量仪表",
+  "status": "draft",
+  "compatibleStyles": [
+    "tech",
+    "sci-fi",
+    "dashboard"
+  ],
+  "representations": {
+    "active": {
+      "primitives": [
+        "segments",
+        "text",
+        "label"
+      ],
+      "parameters": {
+        "segmentCount": {
+          "type": "integer",
+          "allowed": [
+            5,
+            8,
+            10
+          ]
+        },
+        "lineWeight": {
+          "type": "token",
+          "allowed": [
+            "thin",
+            "regular"
+          ]
+        },
+        "showLabel": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    "alwaysOn": {
+      "primitives": [
+        "segments",
+        "text"
+      ],
+      "parameterOverrides": {
+        "showLabel": false,
+        "lineWeight": "thin"
+      }
+    }
+  },
+  "stateBehavior": {
+    "normal": {
+      "semanticColor": "secondary"
+    },
+    "low": {
+      "semanticColor": "warning"
+    },
+    "critical": {
+      "semanticColor": "danger"
+    },
+    "unavailable": {
+      "semanticColor": "muted",
+      "text": "--"
+    }
+  },
+  "quality": {
+    "webPreview": "required",
+    "monkeyCTemplate": "required",
+    "simulatorTest": "required",
+    "humanApproval": "required"
+  }
+}

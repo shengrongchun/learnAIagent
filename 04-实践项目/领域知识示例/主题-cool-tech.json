@@ -1,0 +1,46 @@
+{
+  "id": "cool-tech",
+  "version": "1.0",
+  "nameZh": "冷色科技",
+  "styleTags": [
+    "tech",
+    "sci-fi",
+    "dashboard"
+  ],
+  "designTokens": {
+    "lineWeight": "thin",
+    "cornerRadius": "small",
+    "iconLanguage": "geometric-outline",
+    "numberStyle": "technical",
+    "spacingDensity": "medium",
+    "decorationLanguage": "grid-and-segments"
+  },
+  "active": {
+    "background": "#03070D",
+    "primary": "#EAF8FF",
+    "secondary": "#7FA7B8",
+    "accent": "#29D9FF",
+    "warning": "#FFB648",
+    "danger": "#FF5D73",
+    "muted": "#4D6570"
+  },
+  "alwaysOn": {
+    "background": "#000000",
+    "primary": "#8FA8B3",
+    "secondary": "#60737C",
+    "accent": "#568392",
+    "warning": "#8C7658",
+    "danger": "#8C646A",
+    "muted": "#445158"
+  },
+  "preferredVariantTags": [
+    "segments",
+    "outline",
+    "gauge",
+    "modular"
+  ],
+  "avoidVariantTags": [
+    "soft-character",
+    "heavy-rounded"
+  ]
+}
