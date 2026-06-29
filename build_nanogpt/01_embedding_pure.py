@@ -98,7 +98,7 @@ class Value:
     def __pow__(self, other):
         """
         c = a ^ n
-        前向: c.data = a.data ** n
+        前向: c.data = a.data ** n     n是数字
         反向: ∂c/∂a = n * a^(n-1)
         """
         assert isinstance(other, (int, float))
@@ -226,26 +226,25 @@ print(f"  数据长度: {len(data)} 个整数")
 print(f"  前 20 个字符: {repr(text[:20])}")
 print(f"  前 20 个编码: {data[:20]}")
 
-
 # ============================================================
 # 第 3 部分：手搓 Embedding 表 + 输出层
 # ============================================================
 
-n_embd = 8
+n_embd = 8 # 每个向量 8 维
 
 print(f"\n{'=' * 60}")
 print("创建模型参数")
 print("=" * 60)
 
 # Embedding 表：vocab_size 行 × n_embd 列
-# 每个元素是一个 Value 对象（可训练的）
+# 每个元素是一个 Value 对象（可训练的）。Value对象非常关键，它的data就是参数，然后Value中可以算梯度然后调整参数
 emb_table = []
 for i in range(vocab_size):
     row = []
     for j in range(n_embd):
-        row.append(Value(random.gauss(0, 0.1)))
+        row.append(Value(random.gauss(0, 0.1))) # random.gauss 高斯分布的随机小数。从一个 平均值是 0，标准差是 0.1 的正态分布里随机取一个数 random.gauss(平均值, 波动范围)
     emb_table.append(row)
-
+    
 # 输出层权重：vocab_size 行 × n_embd 列
 out_weight = []
 for i in range(vocab_size):
@@ -253,8 +252,11 @@ for i in range(vocab_size):
     for j in range(n_embd):
         row.append(Value(random.gauss(0, 0.1)))
     out_weight.append(row)
+    
+# print('emb_table', emb_table[0])
+# print('out_weight', out_weight[0])
 
-# 收集所有参数（Embedding + 输出层）
+# 收集所有参数（Embedding + 输出层）extend是把list拆开塞进去
 params = []
 for row in emb_table:
     params.extend(row)
@@ -264,7 +266,6 @@ for row in out_weight:
 print(f"  Embedding: {vocab_size} × {n_embd} = {vocab_size * n_embd} 个参数")
 print(f"  输出层:    {vocab_size} × {n_embd} = {vocab_size * n_embd} 个参数")
 print(f"  总参数量:  {len(params)}")
-
 
 # ============================================================
 # 第 4 部分：前向传播（手搓每个运算）
@@ -291,28 +292,29 @@ def forward(token_id, target_id):
     # ---- Step 1: Embedding 查表 ----
     emb = emb_table[token_id]  # 取出第 token_id 行，8 个 Value
 
-    # ---- Step 2: 线性变换（矩阵乘法）----
-    # 对输出层的每一行，和 emb 做点积 → 一个 logit
+    # ---- Step 2: 线性变换（矩阵乘法）---- linear
+    # 对输出层的每一行，和 emb 做点积 → 一个 logit。 为什么是点积(区分下这里和余弦相似度没有关系)
+    # 点积代表：当前 token 产生“下一个 token 候选”的打分（score）强度
     logits = []
     for i in range(vocab_size):
         # logits[i] = out_weight[i] · emb = Σ(w_j * emb_j)
         s = Value(0)
         for j in range(n_embd):
-            s = s + out_weight[i][j] * emb[j]
+            s = s + out_weight[i][j] * emb[j] # 向量点积
         logits.append(s)
 
-    # ---- Step 3: Softmax ----
+    # ---- Step 3: Softmax ---- 作用：把较大的分数变得更突出，同时保证所有结果都是正数，概率总和为1
     # 减去最大值（防止 exp 溢出）
     max_logit = max(l.data for l in logits)
-    exps = [(l - max_logit).exp() for l in logits]
+    exps = [(l - max_logit).exp() for l in logits] # x.exp() --> e^x e是固定值大约2.71828 x如果是自定义对象就用 x.exp() x如果是数值就用 math.exp(x)
     sum_exps = Value(0)
     for e in exps:
         sum_exps = sum_exps + e
-    probs = [e / sum_exps for e in exps]
+    probs = [e / sum_exps for e in exps] # vocab_size个概率 总和为1
 
     # ---- Step 4: 交叉熵损失 ----
-    # loss = -log(正确答案的概率)
-    loss = -probs[target_id].log()
+    # loss = -log(正确答案的概率) probs[target_id]我们现在知道正确答案的概率比如是0.7
+    loss = -probs[target_id].log() # .log() --> 取自然对数 ln(0.7) = -0.357
 
     return loss, probs
 
@@ -321,9 +323,9 @@ def forward(token_id, target_id):
 # 第 5 部分：训练循环
 # ============================================================
 
-block_size = 4
-learning_rate = 0.1
-num_steps = 300
+block_size = 4 # llm每次看几个token
+learning_rate = 0.1 # 学习因子
+num_steps= 300 # 训练多少步
 
 print(f"\n{'=' * 60}")
 print(f"开始训练 ({num_steps} 步)")
@@ -332,24 +334,29 @@ print("=" * 60)
 # 准备训练样本
 n = int(len(data) * 0.9)
 train_data = data[:n]
+# print('train_data', train_data)
 
 for step in range(num_steps):
     # 随机选一个位置，取一个 (x, y) 对
-    pos = random.randint(0, len(train_data) - block_size - 1)
+    pos = random.randint(0, len(train_data) - block_size -1 )
     x_id = train_data[pos]
     y_id = train_data[pos + 1]
-
-    # 前向传播
+    # print('x_id', x_id)
+    # print('y_id', y_id)
+    # 前向传播 关键
     loss, probs = forward(x_id, y_id)
-
+    
+    # print('probs', probs)
+    # print('loss', loss)
+    
     # 反向传播（自动算出所有参数的梯度）
     loss.backward()
-
-    # SGD 更新参数：param = param - lr * grad
+    
+    # SGD 调参数：param = param - lr * grad
     for p in params:
         p.data -= learning_rate * p.grad
-        p.grad = 0.0  # 清空梯度
-
+        p.grad = 0.0 #清空梯度
+    
     if step % 50 == 0:
         # 看看模型给正确答案的概率
         correct_prob = probs[y_id].data
@@ -357,7 +364,7 @@ for step in range(num_steps):
               f"'{itos[x_id]}' → '{itos[y_id]}' | "
               f"loss {loss.data:.4f} | "
               f"正确率 {correct_prob:.3f}")
-
+        
 
 # ============================================================
 # 第 6 部分：查看训练后的 Embedding
@@ -397,113 +404,3 @@ for a, b in pairs:
     sim = cosine_sim(emb_table[stoi[a]], emb_table[stoi[b]])
     print(f"  cos_sim('{a}', '{b}') = {sim:+.4f}")
 
-
-# ============================================================
-# 第 8 部分：生成文本
-# ============================================================
-
-print(f"\n{'=' * 60}")
-print("生成文本")
-print("=" * 60)
-
-
-def generate(start_char, length=100, temperature=0.8):
-    """
-    自回归生成文本。
-
-    从 start_char 开始，每次用模型预测下一个字符的概率，
-    按概率随机采样一个字符，拼到末尾，重复。
-    """
-    result = [start_char]
-    current_id = stoi[start_char]
-
-    for _ in range(length):
-        # 前向传播（不需要 target，只要 probs）
-        _, probs = forward(current_id, 0)
-
-        # 应用 temperature
-        logits_t = [math.log(p.data + 1e-8) / temperature for p in probs]
-
-        # softmax
-        max_l = max(logits_t)
-        exps_t = [math.exp(l - max_l) for l in logits_t]
-        sum_e = sum(exps_t)
-        probs_t = [e / sum_e for e in exps_t]
-
-        # 按概率采样
-        r = random.random()
-        cumsum = 0.0
-        next_id = 0
-        for i, p in enumerate(probs_t):
-            cumsum += p
-            if r <= cumsum:
-                next_id = i
-                break
-
-        current_id = next_id
-        result.append(itos[current_id])
-
-    return "".join(result)
-
-
-print(f"\n生成 1 (从 'h' 开始):")
-print(f"  {repr(generate('h', 80))}")
-
-print(f"\n生成 2 (从 ' ' 开始):")
-print(f"  {repr(generate(' ', 80))}")
-
-print(f"\n生成 3 (从 '\\n' 开始):")
-print(f"  {repr(generate(chr(10), 80))}")
-
-
-# ============================================================
-# 总结
-# ============================================================
-
-print(f"\n{'=' * 60}")
-print("Step 1 手搓版总结")
-print("=" * 60)
-print(f"""
-  这个文件用纯 Python 实现了完整的 Token 预测模型，
-  没有使用任何第三方库。
-
-  核心组件：
-    1. Value 类 (自动求导引擎)
-       - 每个数字记录"值"和"来路"
-       - backward() 自动算所有参数的梯度
-       - 替代了 PyTorch 的 Tensor + autograd
-
-    2. Embedding 表 (vocab_size × n_embd 的 Value 矩阵)
-       - 查表操作：取第 token_id 行
-       - 替代了 nn.Embedding
-
-    3. 输出层 (vocab_size × n_embd 的 Value 矩阵)
-       - 矩阵乘法：每行和输入做点积
-       - 替代了 nn.Linear
-
-    4. Softmax (手搓 exp + sum + 除法)
-       - 替代了 F.softmax
-
-    5. 交叉熵损失 (手搓 -log)
-       - 替代了 F.cross_entropy
-
-    6. SGD 优化器 (手搓 param -= lr * grad)
-       - 替代了 torch.optim
-
-  训练循环的 4 步（和 PyTorch 版完全对应）：
-    loss, probs = forward(x_id, y_id)   ← 前向传播
-    loss.backward()                      ← 反向传播
-    for p in params:                     ← 参数更新
-        p.data -= lr * p.grad
-        p.grad = 0.0
-
-  参数量: {len(params)} 个
-  PyTorch 版参数量: {vocab_size * n_embd * 2} 个（完全一致）
-
-  下一步：
-    这个文件只实现了最简单的 Bigram 模型。
-    要加上 Attention、多层 Transformer，
-    手搓的代码量会急剧增长（microgpt 约 800 行）。
-    所以在后续步骤中我们用 PyTorch 来管理张量和梯度，
-    但你现在已经知道 PyTorch 的每一步在做什么了。
-""")
