@@ -119,8 +119,9 @@ print(f"""
 """)
 
 
+
 # ============================================================
-# 3. 实现 FFN 模块
+# 3. 实现 FFN 模块 作用：把收集来的信息重新组合，提取更高级的特征。比如我喜欢吃苹果--> 苹果可以吃
 # ============================================================
 
 class FeedForward(nn.Module):
@@ -141,9 +142,9 @@ class FeedForward(nn.Module):
         super().__init__()
 
         self.net = nn.Sequential(
-            nn.Linear(n_embd, 4 * n_embd),     # 升维：16 → 64
+            nn.Linear(n_embd, 4 * n_embd),     # 升维：16 → 64 更多维度提供了更多的计算空间，让模型可以构造和组合更多特征
             nn.GELU(),                          # 非线性激活
-            nn.Linear(4 * n_embd, n_embd),     # 降维：64 → 16
+            nn.Linear(4 * n_embd, n_embd),     # 降维：64 → 16 学习如何保留最重要的信息
             nn.Dropout(dropout),                # 随机失活，防止过拟合
         )
 
@@ -176,6 +177,7 @@ print(f"\n  FFN 参数量:")
 print(f"    Linear1: {n_embd} × {4 * n_embd} + {4 * n_embd} (bias) = {n_embd * 4 * n_embd + 4 * n_embd}")
 print(f"    Linear2: {4 * n_embd} × {n_embd} + {n_embd} (bias) = {4 * n_embd * n_embd + n_embd}")
 print(f"    总计: {ffn_params}")
+
 
 
 # ============================================================

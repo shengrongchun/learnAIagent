@@ -69,7 +69,7 @@ d = 8     # 每个 token 的维度
 
 # 用简单的固定值代替随机数，方便你跟着算
 x = [
-    # 维度:   0      1      2      3      4      5      6      7
+# 维度: 0      1      2      3      4      5      6      7
     [ 0.1,   0.2,   0.3,   0.4,   0.5,   0.6,   0.7,   0.8],  # token 0: "The"
     [ 0.9,   0.8,   0.7,   0.6,   0.5,   0.4,   0.3,   0.2],  # token 1: "fox"
     [-0.1,  -0.2,  -0.3,  -0.4,  -0.5,  -0.6,  -0.7,  -0.8],  # token 2: "is"
@@ -139,10 +139,10 @@ def matmul(A, B):
 
     C[i][j] = A 的第 i 行 · B 的第 j 列
     """
-    m = len(A)
+    m = len(A) # A的行
     n = len(B)
-    p = len(B[0])
-    C = [[0.0] * p for _ in range(m)]
+    p = len(B[0]) # B的列
+    C = [[0.0] * p for _ in range(m)] # 初始化 m行p列默认值是0.0的向量
     for i in range(m):
         for j in range(p):
             # B 的第 j 列
@@ -156,8 +156,8 @@ def transpose(M):
     矩阵转置：行变列，列变行。
     M[i][j] → M^T[j][i]
     """
-    rows = len(M)
-    cols = len(M[0])
+    rows = len(M) # 行
+    cols = len(M[0]) # 列
     return [[M[i][j] for i in range(rows)] for j in range(cols)]
 
 
@@ -222,7 +222,7 @@ print(f"""
 # 这一步是 Attention 的核心：
 # 用每个 token 的 Q 去和所有 token 的 K 做点积，
 # 得到"谁跟我最相关"的分数。
-
+# 假如两个多行多列的矩阵相乘A: x行y列，B:m行n列 那么可以相乘的条件是y==m 得到 x行n列的向量
 K_T = transpose(K)       # K 转置: [d, T]
 scores = matmul(Q, K_T)  # Q @ K^T: [T, T]
 
@@ -279,7 +279,7 @@ print_matrix("scores_scaled", scores_scaled,
 
 
 # ============================================================
-# 6. 因果 Mask（Causal Mask）：不能偷看未来
+# 6. 因果 Mask（Causal Mask）：不能偷看未来，否则就不是预测下一个token. 而是直接找答案
 # ============================================================
 
 # 语言模型是从左到右生成的：
@@ -441,7 +441,6 @@ print("""
   最终输出: output [T, d]
     每个位置的向量都融合了它之前所有 token 的信息。
 """)
-
 
 # ============================================================
 # 10. 一个关键问题：为什么叫 "Self"-Attention？

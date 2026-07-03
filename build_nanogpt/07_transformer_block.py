@@ -119,8 +119,18 @@ ln = nn.LayerNorm(n_embd)
 
 # 创建一个数值范围差异很大的输入
 x_raw = torch.tensor([
-    [10.0, -5.0, 20.0, -15.0, 8.0, -3.0, 12.0, -7.0],  # 数值范围大
-    [0.1, 0.2, -0.1, 0.3, -0.2, 0.1, 0.0, -0.1],        # 数值范围小
+    [
+        10.0, -5.0, 20.0, -15.0,
+        8.0, -3.0, 12.0, -7.0,
+        15.0, -8.0, 6.0, -2.0,
+        18.0, -9.0, 4.0, 11.0
+    ],
+    [
+        0.1, 0.2, -0.1, 0.3,
+        -0.2, 0.1, 0.0, -0.1,
+        0.2, -0.3, 0.1, -0.2,
+        0.0, 0.3, -0.1, 0.2
+    ]
 ])
 
 x_normed = ln(x_raw)
@@ -212,12 +222,12 @@ class MultiHeadAttention(nn.Module):
     def __init__(self, num_heads, head_size):
         super().__init__()
         self.heads = nn.ModuleList([Head(head_size) for _ in range(num_heads)])
-        self.proj = nn.Linear(num_heads * head_size, n_embd)
+        self.proj = nn.Linear(num_heads * head_size, n_embd) # 投影：让不同头的信息混合
         self.dropout = nn.Dropout(0.1)
 
     def forward(self, x):
         out = torch.cat([h(x) for h in self.heads], dim=-1)
-        out = self.proj(out)
+        out = self.proj(out) # 投影：让不同头的信息混合
         out = self.dropout(out)
         return out
 

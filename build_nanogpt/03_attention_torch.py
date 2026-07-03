@@ -90,7 +90,7 @@ head_size = 16  # 注意力头的维度
 
 # 演示 nn.Linear
 linear_demo = nn.Linear(n_embd, head_size, bias=False)
-x_demo = torch.randn(2, 4, n_embd)  # [B=2, T=4, n_embd=16]
+x_demo = torch.randn(2, 4, n_embd)  # [B=2, T=4, n_embd=16] 2个样本 每个样本4个token 每个token16维度
 out_demo = linear_demo(x_demo)
 
 print("=" * 60)
@@ -108,6 +108,67 @@ print(f"""
     实际上就是对每个 token 独立做了一次线性变换：
     把 16 维的 Embedding 投影到 16 维的 Query/Key/Value 空间。
 """)
+
+print(f"""
+  相关参数解读：
+  ---
+
+  block_size = 8 LLM 最长处理上下文
+
+  这是模型能处理的最大序列长度上限。它的唯一用途是在 Head.__init__ 里创建一个 8×8 的下三角因果 Mask：
+
+  self.register_buffer("tril", torch.tril(torch.ones(block_size, block_size)))
+
+  之所以要预分配一个 block_size × block_size 的大矩阵，是因为训练时 T（实际序列长度）可能每次不同，但 Mask 矩阵是固定的不可学习参数，只需创建一次。使用时通过 self.tril[:T, :T] 截取对应大小就行。你可以把它理解为"先做好一块大模板，用的时候裁出需要的大小"。
+
+  如果输入的序列长度 T 超过了 block_size，代码会报越界错误。所以 block_size 就是模型架构设计时定下的"最长能处理多少个 token"。
+
+  ---
+
+  B = 2
+
+  这是 batch size，即一次前向传播同时处理2 条独立的数据。
+
+  体现在输入张量的形状上：x 是 [B=2, T=4, n_embd=16]。第一个维度就是 batch 维度。PyTorch 的矩阵运算（q @ k.transpose(-2, -1) 等）会自动对 batch 内的每条数据独立计算，所以 2 条数据完全互不干扰。
+
+  用 batch 的好处纯粹是效率——GPU 擅长并行计算，一次算 2 条和一次算 1 条花的时间几乎一样，但吞吐量翻倍了。
+
+  ---
+
+  T = 4
+
+  这是当前这批数据的实际序列长度——每条数据有 4 个 token。
+
+  注意 T 和 block_size 的关系：T 是数据层面的实际长度，block_size 是模型层面的最大容量。代码第 187 行的 self.tril[:T, :T] 就是"从 8×8 的大 Mask 里切出 4×4 的子矩阵来用"。
+
+  为什么 T 可以小于 block_size？因为同一个模型可能遇到不同长度的输入。训练时 batch 内通常统一长度（比如都填充到 4），推理时序列长度可能逐步增长（生成第 1 个 token 时 T=1，生成第 2 个时 T=2...）。block_size 只是保证 Mask 模板"够用"。
+
+  在这个例子里，T=4 意味着因果 Mask 是一个 4×4 的下三角矩阵：
+
+  [[1, 0, 0, 0],    ← pos_0 只能看自己
+  [1, 1, 0, 0],    ← pos_1 能看 pos_0 和自己
+  [1, 1, 1, 0],    ← pos_2 能看前面两个和自己
+  [1, 1, 1, 1]]    ← pos_3 能看所有
+
+  ---
+
+  head_size = 8
+
+  这是注意力头的输出维度，也就是 Q/K/V 经过线性变换后的特征维度。
+
+  体现在代码里（第 142-144 行），三个 nn.Linear 都是 nn.Linear(n_embd, head_size, bias=False)，即把输入从 n_embd=16 维投影到 head_size=8 维。所以 Q、K、V 的形状都是 [B, T, 8]，最终输出 out 也是 [B, T, 8]。
+
+  这里有个值得注意的点：head_size（8）小于 n_embd（16），意味着注意力头做了一次降维。在单头注意力里通常 head_size = n_embd，但这里故意设成 8 是为了演示"投影到不同维度"这个概念。到多头注意力时，head_size = n_embd / n_head，比如 n_embd=64 分 8 个头，每个头就只有 8 维，计算量就小很多了。
+
+  参数量也因此受到影响：每个 Linear 是 16 × 8 = 128 个参数，三个 Linear 共 384 个参数。
+""")
+
+
+# 模型训练通过大量 batch 进行，每个 batch 包含多条 token 序列。
+# 通过因果自注意力机制（Q、K、V），每个 token 的表示融入了它之前所有 token 的信息。
+# 然后模型在每个位置上根据融合后的表示，预测下一个 token 在整个词汇表上的概率分布，并与真实标签计算损失来更新参数
+
+
 
 
 # ============================================================
@@ -139,7 +200,7 @@ class Head(nn.Module):
         # 三个线性变换：生成 Q, K, V
         # bias=False：Attention 里通常不需要偏置项
         #   因为偏置会被加到每个 token 上，对 attention score 没有区分作用
-        self.key = nn.Linear(n_embd, head_size, bias=False)
+        self.key = nn.Linear(n_embd, head_size, bias=False) # self.key是线性变换函数，里面有head_size 行 * n_embd 列的矩阵
         self.query = nn.Linear(n_embd, head_size, bias=False)
         self.value = nn.Linear(n_embd, head_size, bias=False)
 
@@ -157,7 +218,7 @@ class Head(nn.Module):
         B, T, C = x.shape  # B=batch, T=序列长度, C=n_embd
 
         # ---- 生成 Q, K, V ----
-        k = self.key(x)    # [B, T, head_size]
+        k = self.key(x)    # [B, T, head_size]  x是T行*n_embd 列的矩阵, k = x @ weight.T weight是self.key里面的矩阵
         q = self.query(x)  # [B, T, head_size]
         v = self.value(x)  # [B, T, head_size]
 
@@ -169,11 +230,11 @@ class Head(nn.Module):
         # 结果: [B, T, T]
         #
         # wei[i][j] = q[i] 和 k[j] 的点积 = token i 对 token j 的关注度
-        wei = q @ k.transpose(-2, -1)
+        wei = q @ k.transpose(-2, -1) # 倒数第二维和倒数第一维交换
 
         # ---- 缩放 ----
         # 除以 sqrt(head_size)，防止点积过大
-        wei = wei * (k.shape[-1] ** -0.5)
+        wei = wei * (k.shape[-1] ** -0.5) # head_size ** -0.5 --> 1/根号head_size
 
         # ---- 因果 Mask ----
         # 把未来位置（上三角部分）设为 -inf
@@ -212,8 +273,8 @@ head_size = 8   # 注意力头维度
 # 创建模型
 head = Head(head_size)
 
-# 创建假输入: [B=2, T=4, n_embd=16]
-x = torch.randn(B, T, n_embd)
+# 创建假输入: [B=2, T=4, n_embd=16] 训练数据
+x = torch.randn(B, T, n_embd) # 生成随机数字 
 
 # 前向传播
 out = head(x)
@@ -243,9 +304,9 @@ with torch.no_grad():
     q = head.query(x)
 
     wei = q @ k.transpose(-2, -1)
-    wei = wei * (k.shape[-1] ** -0.5)
+    wei = wei * (k.shape[-1] ** -0.5) # 除以 sqrt(head_size)，防止点积过大
     wei = wei.masked_fill(head.tril[:T, :T] == 0, float("-inf"))
-    wei = F.softmax(wei, dim=-1)
+    wei = F.softmax(wei, dim=-1) # [B, T, T]
 
 print("\n" + "=" * 60)
 print("注意力权重矩阵（batch 0）")
@@ -267,7 +328,6 @@ print(f"""
     - pos_0 只能看自己 → [1.000, 0, 0, 0]
     - 其他行加起来 = 1.0，表示每个 token 对之前 token 的注意力分配
 """)
-
 
 # ============================================================
 # 6. 因果 Mask 的可视化
@@ -298,6 +358,7 @@ print(f"""
   这和考试的道理一样：
     做题时不能看答案，否则考出来的是"抄答案的能力"而非"解题的能力"。
 """)
+
 
 
 # ============================================================

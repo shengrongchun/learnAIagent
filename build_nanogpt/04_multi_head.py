@@ -30,6 +30,15 @@ Step 4: 多头注意力 (Multi-Head Attention)
   2. 为什么 head_size = n_embd // n_head
   3. 多头的结果怎么拼接和投影
   4. 和单头版本的参数量对比
+  
+  经验证据
+  实际研究（比如 Vaswani 原论文和后续的可解释性工作）发现：
+
+  同等参数量下，多头 + 小维度 优于 单头 + 大维度。而且可视化不同头的注意力图后，确实观察到不同头学到了不同的语言关系
+  ——有的头学到了语法依存，有的学到了共指消解，有的学到了位置关系。
+
+  所以结论是：单头高维"理论上能做"，但多头在同等参数下做得更好，因为多个独立的 softmax 提供了一个关键的结构性优势。 
+  你的直觉抓住了"容量"这一面，但注意力机制的瓶颈不在于容量，而在于如何将不同类型的关注模式解耦
 """
 
 import torch
@@ -75,7 +84,7 @@ print("""
 # 4 个头的结果拼起来还是 16 维。
 
 n_embd = 16
-n_head = 4
+n_head = 4 # 4个头
 head_size = n_embd // n_head
 block_size = 8
 
@@ -162,7 +171,7 @@ class MultiHeadAttention(nn.Module):
         out = torch.cat([head(x) for head in self.heads], dim=-1)
 
         # 投影：让不同头的信息混合
-        out = self.proj(out)
+        out = self.proj(out) # 乘积 和 self.key(x)一样
 
         return out
 
@@ -264,6 +273,7 @@ print(f"""
 """)
 
 
+
 # ============================================================
 # 7. 两种等价的实现方式
 # ============================================================
@@ -345,3 +355,4 @@ print(f"""
     "The fox" 和 "fox The" 在 Attention 看来是一样的！
     我们需要位置编码 (Positional Encoding) 来解决这个问题。
 """)
+
