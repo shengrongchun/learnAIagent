@@ -1,0 +1,31 @@
+{
+  "name": "learn-agent",
+  "version": "1.0.0",
+  "description": "系统化学习 AI Agent 开发的教程项目 - 深度研究 Agent",
+  "type": "module",
+  "scripts": {
+    "lesson:01": "node lessons/01-basic-react/index.js",
+    "lesson:02": "node lessons/02-tool-use/index.js",
+    "lesson:03": "node lessons/03-structured-output/index.js",
+    "lesson:04": "node lessons/04-langgraph-basic/index.js",
+    "lesson:05": "node lessons/05-conditional-routing/index.js",
+    "lesson:06": "node lessons/06-rag/index.js",
+    "lesson:07": "node lessons/07-memory/index.js",
+    "lesson:08": "node lessons/08-human-in-loop/index.js",
+    "lesson:09": "node lessons/09-reflection/index.js",
+    "lesson:10": "node lessons/10-multi-agent/index.js"
+  },
+  "dependencies": {
+    "@langchain/anthropic": "^0.3.0",
+    "@langchain/community": "^0.3.0",
+    "@langchain/core": "^0.3.0",
+    "@langchain/langgraph": "^0.2.0",
+    "@langchain/openai": "^0.3.0",
+    "dotenv": "^16.4.0",
+    "langchain": "^0.3.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  }
+}
