@@ -12,14 +12,12 @@
 // 【实现方式】
 // LangChain.js 使用 Zod Schema + withStructuredOutput()
 
-import { ChatOpenAI } from "@langchain/openai";
 import { z } from "zod";
+import { createModel } from "../../utils/model.js";
 import "dotenv/config";
 
-const model = new ChatOpenAI({
-  model: "gpt-4o-mini",
-  temperature: 0,
-});
+// 模型配置在 utils/model.js 中统一管理（使用千问 API）
+const model = createModel();
 
 // ====== 第一步：用 Zod 定义输出结构 ======
 // Zod 是 TypeScript/JavaScript 的 Schema 验证库

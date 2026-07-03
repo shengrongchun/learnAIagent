@@ -8,16 +8,14 @@
 // 所有复杂的 Agent 框架（LangGraph、AutoGPT、CrewAI）底层都是这个循环
 // 理解了这个循环，就理解了 Agent 的核心
 
-import { ChatOpenAI } from "@langchain/openai";
 import { HumanMessage, SystemMessage, AIMessage } from "@langchain/core/messages";
+import { createModel } from "../../utils/model.js";
 import "dotenv/config";
 
 // ====== 第一步：创建一个 LLM 实例 ======
 // 注意：Agent 的核心就是 LLM，但加上了"循环"能力
-const model = new ChatOpenAI({
-  model: "gpt-4o-mini", // 用小模型节省成本，学习时够用
-  temperature: 0,       // 低温度 = 更确定性的输出
-});
+// 模型配置在 utils/model.js 中统一管理（使用千问 API）
+const model = createModel();
 
 // ====== 第二步：定义 Agent 的思考提示 ======
 // 这个 System Prompt 教会 LLM 像 Agent 一样思考

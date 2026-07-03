@@ -31,18 +31,14 @@
 import { MemorySaver } from "@langchain/langgraph";
 import { Annotation, StateGraph, START, END } from "@langchain/langgraph";
 import { MessagesAnnotation } from "@langchain/langgraph";
-import { ChatOpenAI } from "@langchain/openai";
+import { createModel, createEmbeddings } from "../../utils/model.js";
 import { HumanMessage, AIMessage, SystemMessage } from "@langchain/core/messages";
 import { MemoryVectorStore } from "@langchain/community/vector_stores/memory";
-import { OpenAIEmbeddings } from "@langchain/openai";
 import { Document } from "@langchain/core/documents";
 import "dotenv/config";
 
 // 创建 LLM 实例
-const model = new ChatOpenAI({
-  model: "gpt-4o-mini",
-  temperature: 0,
-});
+const model = createModel();
 
 // ============================================================================
 // Part 1: 短期记忆 —— 消息历史（Message History）
@@ -258,9 +254,7 @@ async function demoLongTermMemory() {
   console.log("▸".repeat(30));
 
   // ---- 初始化长期记忆存储 ----
-  const embeddings = new OpenAIEmbeddings({
-    model: "text-embedding-3-small",
-  });
+  const embeddings = createEmbeddings();
   const memoryStore = new MemoryVectorStore(embeddings);
 
   console.log("\n📚 初始化长期记忆存储...");

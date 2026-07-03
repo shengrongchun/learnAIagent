@@ -36,10 +36,9 @@
 //   尽量在自然边界处断开。
 
 import { MemoryVectorStore } from "@langchain/community/vector_stores/memory";
-import { OpenAIEmbeddings } from "@langchain/openai";
+import { createModel, createEmbeddings } from "../../utils/model.js";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { Document } from "@langchain/core/documents";
-import { ChatOpenAI } from "@langchain/openai";
 import { Annotation, StateGraph, START, END } from "@langchain/langgraph";
 import "dotenv/config";
 
@@ -155,10 +154,8 @@ async function createVectorStore(docs) {
   console.log("\n🔢 第三步：向量化并存储");
 
   // 创建 Embedding 模型实例
-  // OpenAIEmbeddings 会将文本转换为1536维的向量（使用ada-002模型）
-  const embeddings = new OpenAIEmbeddings({
-    model: "text-embedding-3-small", // 性价比高，适合学习和一般用途
-  });
+  // 使用共享工具函数创建 Embedding 模型（内部使用 text-embedding-3-small）
+  const embeddings = createEmbeddings();
 
   // 从文档创建向量存储
   // 这个过程会自动：1) 对每个文档片段生成embedding向量 2) 存入内存
@@ -222,10 +219,7 @@ const RAGAnnotation = Annotation.Root({
 });
 
 // 创建 LLM 实例，用于最终的答案生成
-const llm = new ChatOpenAI({
-  model: "gpt-4o-mini",
-  temperature: 0,
-});
+const llm = createModel();
 
 // 这个函数构建 RAG 图
 function buildRAGGraph(vectorStore) {

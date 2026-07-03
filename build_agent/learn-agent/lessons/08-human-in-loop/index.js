@@ -25,7 +25,7 @@
 
 import { Annotation, StateGraph, START, END, MemorySaver } from "@langchain/langgraph";
 import { Command } from "@langchain/langgraph";
-import { ChatOpenAI } from "@langchain/openai";
+import { createModel } from "../../utils/model.js";
 import { SystemMessage, HumanMessage } from "@langchain/core/messages";
 import "dotenv/config";
 
@@ -66,10 +66,7 @@ const AgentState = Annotation.Root({
 });
 
 // ====== 第二步：创建 LLM 实例 ======
-const model = new ChatOpenAI({
-  model: "gpt-4o-mini",
-  temperature: 0.7, // 稍高温度，让研究计划更有创意
-});
+const model = createModel();
 
 // ====== 第三步：定义图的节点（Nodes） ======
 

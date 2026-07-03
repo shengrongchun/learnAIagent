@@ -36,7 +36,7 @@
 //   当 Supervisor 判断任务完成时，路由到 END
 
 import { Annotation, StateGraph, START, END } from "@langchain/langgraph";
-import { ChatOpenAI } from "@langchain/openai";
+import { createModel } from "../../utils/model.js";
 import { SystemMessage, HumanMessage } from "@langchain/core/messages";
 import { z } from "zod";
 import "dotenv/config";
@@ -88,28 +88,16 @@ const TeamState = Annotation.Root({
 // 这让每个 Agent 拥有不同的"专业人格"
 
 // Supervisor（监督者）—— 项目经理，负责协调和决策
-const supervisorLLM = new ChatOpenAI({
-  model: "gpt-4o-mini",
-  temperature: 0.2, // 低温度，决策要稳定可靠
-});
+const supervisorLLM = createModel({ temperature: 0.2 }); // 低温度，决策要稳定可靠
 
 // Researcher（研究员）—— 信息收集专家
-const researcherLLM = new ChatOpenAI({
-  model: "gpt-4o-mini",
-  temperature: 0.4,
-});
+const researcherLLM = createModel({ temperature: 0.4 });
 
 // Analyst（分析师）—— 数据分析和洞察专家
-const analystLLM = new ChatOpenAI({
-  model: "gpt-4o-mini",
-  temperature: 0.3,
-});
+const analystLLM = createModel({ temperature: 0.3 });
 
 // Writer（撰稿人）—— 报告撰写专家
-const writerLLM = new ChatOpenAI({
-  model: "gpt-4o-mini",
-  temperature: 0.6, // 高一点温度，写作更有创意
-});
+const writerLLM = createModel({ temperature: 0.6 }); // 高一点温度，写作更有创意
 
 // ====== 第三步：定义 Supervisor 的结构化输出 Schema ======
 // Supervisor 的决策必须是结构化的，这样图才能根据决策做路由

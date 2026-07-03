@@ -22,7 +22,7 @@
 //   形成一个循环！
 
 import { Annotation, StateGraph, START, END } from "@langchain/langgraph";
-import { ChatOpenAI } from "@langchain/openai";
+import { createModel } from "../../utils/model.js";
 import { SystemMessage, HumanMessage } from "@langchain/core/messages";
 import "dotenv/config";
 
@@ -73,17 +73,11 @@ const ReportState = Annotation.Root({
 
 // 生成器 LLM —— 负责写报告
 // temperature 稍高，鼓励创造性表达
-const generatorLLM = new ChatOpenAI({
-  model: "gpt-4o-mini",
-  temperature: 0.7,
-});
+const generatorLLM = createModel({ temperature: 0.7 });
 
 // 评审者 LLM —— 负责严格审查
 // temperature 低，确保评审稳定、严格、客观
-const criticLLM = new ChatOpenAI({
-  model: "gpt-4o-mini",
-  temperature: 0.1, // 低温度 = 更一致、更严格的评审
-});
+const criticLLM = createModel({ temperature: 0.1 }); // 低温度 = 更一致、更严格的评审
 
 // ====== 第三步：定义质量评判标准 ======
 // 明确的评判标准让反思更有效

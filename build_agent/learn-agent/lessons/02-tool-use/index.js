@@ -12,10 +12,10 @@
 // 工具描述的质量直接决定 Agent 的决策质量！
 // 写好工具描述 = 让 Agent 更聪明
 
-import { ChatOpenAI } from "@langchain/openai";
 import { tool } from "@langchain/core/tools";
 import { z } from "zod";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
+import { createModel } from "../../utils/model.js";
 import "dotenv/config";
 
 // ====== 第一步：定义工具 ======
@@ -93,10 +93,8 @@ const noteTool = tool(
 // ====== 第二步：创建 Agent ======
 // 使用 LangGraph 的预构建 ReAct Agent
 // 它自动处理 Thought → Action → Observation 循环
-const model = new ChatOpenAI({
-  model: "gpt-4o-mini",
-  temperature: 0,
-});
+// 模型配置在 utils/model.js 中统一管理（使用千问 API）
+const model = createModel();
 
 // bindTools() 让 LLM 知道有哪些工具可用
 // createReactAgent() 创建一个完整的 ReAct Agent
