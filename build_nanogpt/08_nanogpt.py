@@ -74,27 +74,63 @@ class Config:
 # ============================================================
 # 2. 核心组件（从前面步骤整合过来）
 # ============================================================
-
+# 单头：
+# 输入 x
+#  │
+#  │  (1) Linear
+#  ▼
+# Q、K、V
+#  │
+#  │  (2) 点积
+#  ▼
+# QKᵀ
+#  │
+#  │  (3) Scale
+#  ▼
+# QKᵀ / √d
+#  │
+#  │  (4) Mask
+#  ▼
+# 未来位置 = -∞
+#  │
+#  │  (5) Softmax
+#  ▼
+# Attention Weight
+#  │
+#  │  (6) Dropout
+#  ▼
+# 新的 Attention Weight
+#  │
+#  │  (7) 加权 Value
+#  ▼
+# Weight @ V
+#  │
+#  ▼
+# 输出
 class Head(nn.Module):
     """单个 Self-Attention Head"""
 
     def __init__(self, head_size, n_embd, block_size, dropout):
         super().__init__()
-        self.key = nn.Linear(n_embd, head_size, bias=False)
+        # 线性变化，输入n_embd维，输出head_size维 把旧特征重新组合成新的特征
+        self.key = nn.Linear(n_embd, head_size, bias=False) 
         self.query = nn.Linear(n_embd, head_size, bias=False)
         self.value = nn.Linear(n_embd, head_size, bias=False)
+        # mask下，不希望看到未来
         self.register_buffer("tril", torch.tril(torch.ones(block_size, block_size)))
         self.dropout = nn.Dropout(dropout)
 
     def forward(self, x):
         B, T, C = x.shape
+        # 输出 k、q、v (输出head_size维)
         k = self.key(x)
         q = self.query(x)
         v = self.value(x)
-
-        wei = q @ k.transpose(-2, -1) * (k.shape[-1] ** -0.5)
+        # 除以 sqrt(head_size)，防止随着向量维度增加，点积的差距被”人为放大”, 而且放大后，softmax后小的梯度可能会没有
+        # ÷√head_size 不是为了削弱 Attention，而是为了让不同维度大小（64、128、256、1024）的 Attention 都工作在相似的数值范围，让 Softmax 和梯度保持稳定
+        wei = q @ k.transpose(-2, -1) * (k.shape[-1] ** -0.5) 
         wei = wei.masked_fill(self.tril[:T, :T] == 0, float("-inf"))
-        wei = F.softmax(wei, dim=-1)
+        wei = F.softmax(wei, dim=-1) # softmax中减去最大值是为了防止e^x爆掉
         wei = self.dropout(wei)
         out = wei @ v
         return out
@@ -107,29 +143,30 @@ class MultiHeadAttention(nn.Module):
         super().__init__()
         assert n_embd % n_head == 0
         head_size = n_embd // n_head
+        # 多头
         self.heads = nn.ModuleList([
-            Head(head_size, n_embd, block_size, dropout)
-            for _ in range(n_head)
+          Head(head_size, n_embd, block_size, dropout)
+          for _ in range(n_head)
         ])
-        self.proj = nn.Linear(n_embd, n_embd)
+        self.proj = nn.Linear(n_embd, n_embd) # 线性变换 
         self.dropout = nn.Dropout(dropout)
 
     def forward(self, x):
-        out = torch.cat([h(x) for h in self.heads], dim=-1)
-        out = self.dropout(self.proj(out))
+        out = torch.cat([h(x) for h in self.heads], dim=-1) # 多头内容concat
+        out = self.dropout(self.proj(out)) # self.proj(out) concat后的内容需要线性变化，形成新的向量特性（融合多个 Head 学到的信息）
         return out
 
 
 class FeedForward(nn.Module):
-    """前馈网络 (MLP)"""
+    """前馈网络 (MLP) 放大--> 激活函数--> 缩小 形成新的向量特性"""
 
     def __init__(self, n_embd, dropout):
         super().__init__()
         self.net = nn.Sequential(
-            nn.Linear(n_embd, 4 * n_embd),
-            nn.GELU(),
-            nn.Linear(4 * n_embd, n_embd),
-            nn.Dropout(dropout),
+          nn.Linear(n_embd, 4 * n_embd),
+          nn.GELU(),
+          nn.Linear(4 * n_embd, n_embd),
+          nn.Dropout(dropout),
         )
 
     def forward(self, x):
@@ -147,8 +184,8 @@ class Block(nn.Module):
         self.ln2 = nn.LayerNorm(n_embd)
 
     def forward(self, x):
-        x = x + self.sa(self.ln1(x))
-        x = x + self.ffwd(self.ln2(x))
+        x = x + self.sa(self.ln1(x)) # 层归一化--> 多头 --> 残差
+        x = x + self.ffwd(self.ln2(x)) # 层归一化--> FFN --> 残差
         return x
 
 

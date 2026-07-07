@@ -306,7 +306,7 @@ with torch.no_grad():
     wei = q @ k.transpose(-2, -1)
     wei = wei * (k.shape[-1] ** -0.5) # 除以 sqrt(head_size)，防止点积过大
     wei = wei.masked_fill(head.tril[:T, :T] == 0, float("-inf"))
-    wei = F.softmax(wei, dim=-1) # [B, T, T]
+    wei = F.softmax(wei, dim=-1) # [B, T, T] dim沿着哪一个维度做 Softmax
 
 print("\n" + "=" * 60)
 print("注意力权重矩阵（batch 0）")

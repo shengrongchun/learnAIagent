@@ -253,7 +253,7 @@ def forward(token_id , target_id):
   # 因为logits中有负有正，我需要算出概率。所以先e^x把有负有正都转成正数
   # 首先要减去最大值防止e^x值太大溢出。但是所有值都同时减去最大值，对结果没影响
   max_logit = max(l.data for l in logits)
-  # logits--> exp
+  # logits--> exp 值的区间：x in (-infty, 0] 0<e^x<=1
   exps = [(l - max_logit).exp() for l in logits] # x.exp() --> e^x e是固定值大约2.71828 x如果是自定义对象就用 x.exp() x如果是数值就用 math.exp(x)
   # print('exps', exps)
   # exp --> p (概率)
@@ -264,7 +264,10 @@ def forward(token_id , target_id):
   # print('probs', probs)
   # ---- Step 4: 交叉熵损失 ----  x(0, 1) ln(x)属于(-∞, 0) -ln(x)属于(0, ∞)
   # 如果我们希望目标概率p趋于1，那就希望loss趋于0。还有一点是为什么使用ln(x)。就是其会把概率很低的变成很大的loss。这样调参
-  # 的时候，就大步调整
+  # 的时候，就大步调整 它会对”非常错误但又很自信”的预测施加更大的惩罚
+  # 之所以不用直接优化 p，主要有两个原因：
+  # 1. 优化效果更好：-\log(p) 会对低概率的正确答案给予更大的惩罚，使模型更快纠正严重错误。
+  # 2. 数学推导更简洁：与 Softmax 结合后，梯度会简化为 p-y，这让反向传播既高效又稳定，因此几乎所有分类模型（包括 GPT、BERT、Transformer）都采用这种组合
   loss = - probs[target_id].log()
   
   return loss, probs

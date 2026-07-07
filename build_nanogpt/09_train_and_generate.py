@@ -40,15 +40,15 @@ torch.manual_seed(1337)
 
 # 模型配置
 block_size = 128    # 上下文窗口大小
-n_embd = 192        # Embedding 维度
-n_head = 6          # 注意力头数
-n_layer = 6         # Transformer 层数
+n_embd = 384        # Embedding 维度
+n_head = 8          # 注意力头数
+n_layer = 12         # Transformer 层数
 dropout = 0.1       # Dropout 率
 
 # 训练配置
 batch_size = 64     # 每批数据包含的样本数
-max_iters = 3000    # 最大训练步数
-eval_interval = 200 # 每隔多少步评估一次
+max_iters = 10000    # 最大训练步数
+eval_interval = 500 # 每隔多少步评估一次
 eval_iters = 20     # 评估时取多少个 batch 求平均
 learning_rate = 3e-4  # 学习率（AdamW 推荐值）
 weight_decay = 0.1    # 权重衰减（L2 正则化）
@@ -69,16 +69,16 @@ print(f"  训练: batch_size={batch_size}, max_iters={max_iters}, lr={learning_r
 # ============================================================
 
 # 检查是否有训练数据文件
-data_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "input.txt")
+data_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "西游记.txt")
 
 if os.path.exists(data_path):
     with open(data_path, "r", encoding="utf-8") as f:
         text = f.read()
-    print(f"\n  加载训练数据: input.txt ({len(text):,} 个字符)")
+    print(f"\n  加载训练数据: 西游记.txt ({len(text):,} 个字符)")
 else:
     # 如果没有数据文件，使用内置的小数据集
     # 这个数据集足够演示训练过程，但效果有限
-    print("\n  未找到 input.txt，使用内置数据集")
+    print("\n  未找到 西游记.txt，使用内置数据集")
 
     # 组合多种文本，让模型学到更丰富的模式
     text = """
@@ -304,7 +304,6 @@ def estimate_loss():
         out[split] = sum(losses) / len(losses)
     model.train()
     return out
-
 
 # ============================================================
 # 4. 训练循环

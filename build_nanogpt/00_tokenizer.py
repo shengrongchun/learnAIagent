@@ -75,7 +75,7 @@ for i, ch in enumerate(chars):
     stoi[ch] = i
 
 itos = {}
-for ch, i in stoi.items():
+for ch, i in stoi.items(): # (ch,i)
     itos[i] = ch
 
 # 看一下映射关系
