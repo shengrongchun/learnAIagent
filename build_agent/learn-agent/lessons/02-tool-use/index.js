@@ -125,7 +125,7 @@ async function main() {
   console.log("🤖 Agent 最终回答:");
   console.log("=".repeat(60));
   const lastMessage = result.messages[result.messages.length - 1];
-  console.log(lastMessage.content);
+  console.log("lastMessage", lastMessage.content);
 
   console.log("\n" + "=".repeat(60));
   console.log("📝 学习要点：");

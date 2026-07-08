@@ -16,14 +16,13 @@
     "lesson:10": "node lessons/10-multi-agent/index.js"
   },
   "dependencies": {
-    "@langchain/anthropic": "^0.3.0",
-    "@langchain/community": "^0.3.0",
-    "@langchain/core": "^0.3.0",
-    "@langchain/langgraph": "^0.2.0",
-    "@langchain/openai": "^0.3.0",
-    "dotenv": "^16.4.0",
-    "langchain": "^0.3.0",
-    "zod": "^3.23.0"
+    "@langchain/community": "^0.3.46",
+    "@langchain/core": "^0.3.57",
+    "@langchain/langgraph": "^0.3.1",
+    "@langchain/openai": "^0.5.18",
+    "dotenv": "16.4.7",
+    "langchain": "^0.3.27",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "typescript": "^5.4.0"
